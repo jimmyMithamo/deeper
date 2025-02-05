@@ -80,7 +80,6 @@ def view_attendance(request):
         'sessions': sessions,
     })
 @csrf_protect
-@login_required
 def manage_group(request):
     groups = Group.objects.all()
     members = []
