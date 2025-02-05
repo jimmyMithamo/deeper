@@ -5,15 +5,17 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_protect
+
 
 def homepage(request):
     return render(request, "attendance/homepage.html")
 
-
+@csrf_protect
 def login_view(request):  # Rename to avoid conflict
     return render(request, "attendance/login.html")
 
-
+@csrf_protect
 def supervisor_login(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -26,6 +28,7 @@ def supervisor_login(request):
             return render(request, 'login.html', {'error': 'Invalid credentials or not an admin.'})
     return render(request, 'attendance/admin_login.html')
 
+@csrf_protect
 def admin_page(request):
     # Fetch the data required for the homepage
     groups = Group.objects.all()
@@ -40,7 +43,7 @@ def admin_page(request):
     
     return render(request, 'attendance/admin_homepage.html', context)
 
-
+@csrf_protect
 def view_attendance(request):
     # Get all sessions
     sessions = Session.objects.all()
@@ -76,7 +79,7 @@ def view_attendance(request):
     return render(request, 'attendance/view_attendance.html', {
         'sessions': sessions,
     })
-
+@csrf_protect
 @login_required
 def manage_group(request):
     groups = Group.objects.all()
@@ -96,7 +99,7 @@ def manage_group(request):
         "selected_group": selected_group,
         "all_members": all_members,
     })
-
+@csrf_protect
 def add_member(request):
     if request.method == "POST":
         member_id = request.POST.get("member_id")
@@ -109,7 +112,7 @@ def add_member(request):
         member.save()
 
     return redirect(f"/supervisor/manage-group/?group_id={group_id}")
-
+@csrf_protect
 def remove_member(request):
     if request.method == "POST":
         member_id = request.POST.get("member_id")
@@ -124,7 +127,7 @@ def remove_member(request):
             return redirect(f"/supervisor/manage-group/?group_id={group_id}")
         else:
             return redirect("/supervisor/manage-group/")  # Redirect safely if no group
-
+@csrf_protect
 def assign_leader(request):
     if request.method == 'POST':
         # Retrieve the leader's name, username, and group ID from the POST data
@@ -183,7 +186,7 @@ def assign_leader(request):
 
 
 
-
+@csrf_protect
 def check_login(request):
     if request.method == "POST":  
         username = request.POST.get("username")
@@ -202,7 +205,7 @@ def check_login(request):
             return render(request, "attendance/login.html", {"error": "Invalid username"})
 
     return redirect("login")  # Redirect to login page if method is not POST
-
+@csrf_protect
 def home(request):
     leader_username = request.session.get('leader')  # Get leader from session
     print('Leader username:', leader_username)
@@ -229,7 +232,7 @@ def home(request):
     except leaders.DoesNotExist:
         print("Leader not found!")
         return render(request, "attendance/home.html", {"error": "Leader not found!"})
-
+@csrf_protect
 def attendance(request, session_id):
     leader = request.session.get('leader')
 
@@ -261,7 +264,7 @@ def attendance(request, session_id):
     }
 
     return render(request, 'attendance/mark_attendance.html', context)
-
+@csrf_protect
 def submit_attendance(request, session_id):
     leader = request.session.get('leader')
 
